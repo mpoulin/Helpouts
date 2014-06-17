@@ -90,7 +90,7 @@ def main():
         print(goodhtml % (cgi.escape(fileinfo.filename),
                           cgi.escape(srvrname),
                           cgi.escape(filetext)))
-    except RuntimeError e:
+    except RuntimeError as e:
         msg = e.args[0]
         print(html % msg)
 
