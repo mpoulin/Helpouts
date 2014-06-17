@@ -90,6 +90,9 @@ if __name__ == "__main__":
         print(goodhtml % (cgi.escape(fileinfo.filename),
                           cgi.escape(srvrname),
                           cgi.escape(filetext)))
+    except IOError as e:
+        msg = e.args[0]
+        print(html % msg)
     except RuntimeError as e:
         msg = e.args[0]
         print(html % msg)
