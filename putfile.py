@@ -43,6 +43,13 @@ goodhtml = html % """
 
 # process form data
 
+def check_preconditions(form):
+    """ Raise an exception if any precondition is not met. """
+    if not 'clientfile' in form:
+        raise RuntimeError('Error: no file was received')
+    if not form['clientfile'].filename:
+        raise RuntimeError('Error: filename is missing')
+
 def splitpath(origpath):                              # get file at end
     for pathmodule in [posixpath, ntpath, macpath]:   # try all clients
         basename = pathmodule.split(origpath)[1]      # may be any server
@@ -76,19 +83,21 @@ def saveonserver(fileinfo):                           # use file input form data
     return filetext, srvrname
 
 def main():
-    if not 'clientfile' in form:
-        print(html % 'Error: no file was received')
-    elif not form['clientfile'].filename:
-        print(html % 'Error: filename is missing')
-    else:
+    try:
+        check_preconditions(form)
         fileinfo = form['clientfile']
-        try:
-            filetext, srvrname = saveonserver(fileinfo)
-        except:
-            errmsg = '<h2>Error</h2><p>%s<p>%s' % tuple(sys.exc_info()[:2])
-            print(html % errmsg)
-        else:
-            print(goodhtml % (cgi.escape(fileinfo.filename),
-                              cgi.escape(srvrname),
-                              cgi.escape(filetext)))
-main()
+        filetext, srvrname = saveonserver(fileinfo)
+        print(goodhtml % (cgi.escape(fileinfo.filename),
+                          cgi.escape(srvrname),
+                          cgi.escape(filetext)))
+    except RuntimeError e:
+        msg = e.args[0]
+        print(html % msg)
+
+
+try:
+    main()
+except:
+    # Any uncaught exceptions get reported here.
+    errmsg = '<h2>Error</h2><p>%s<p>%s' % tuple(sys.exc_info()[:2])
+    print(html % errmsg)
