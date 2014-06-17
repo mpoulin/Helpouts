@@ -82,7 +82,7 @@ def saveonserver(fileinfo):                           # use file input form data
     os.chmod(srvrname, 0o666)   # make writable: owned by 'nobody'
     return filetext, srvrname
 
-def main():
+if __name__ == "__main__":
     try:
         check_preconditions(form)
         fileinfo = form['clientfile']
@@ -93,11 +93,8 @@ def main():
     except RuntimeError as e:
         msg = e.args[0]
         print(html % msg)
+    except:
+        # Any uncaught exceptions get reported here.
+        errmsg = '<h2>Error</h2><p>%s<p>%s' % tuple(sys.exc_info()[:2])
+        print(html % errmsg)
 
-
-try:
-    main()
-except:
-    # Any uncaught exceptions get reported here.
-    errmsg = '<h2>Error</h2><p>%s<p>%s' % tuple(sys.exc_info()[:2])
-    print(html % errmsg)
