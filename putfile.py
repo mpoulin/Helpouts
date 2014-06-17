@@ -53,24 +53,25 @@ def splitpath(origpath):                              # get file at end
 def saveonserver(fileinfo):                           # use file input form data
     basename = splitpath(fileinfo.filename)           # name without dir path
     srvrname = os.path.join(uploaddir, basename)      # store in a dir if set
-    srvrfile = open(srvrname, 'wb')                   # always write bytes here
-    if loadtextauto:
-        filetext = fileinfo.value                     # reads text into string
-        if isinstance(filetext, str):                 # Python 3.1 hack
-            filedata = filetext.encode()
-        srvrfile.write(filedata)                      # save in server file
-    else:                                             # else read line by line
-        numlines, filetext = 0, ''                    # e.g., for huge files
-        while True:                                   # content always str here
-            line = fileinfo.file.readline()           # or for loop and iterator
-            if not line: break
-            if isinstance(line, str):                 # Python 3.1 hack
-                line = line.encode()
-            srvrfile.write(line)
-            filetext += line.decode()                 # ditto
-            numlines += 1
-        filetext = ('[Lines=%d]\n' % numlines) + filetext
-    srvrfile.close()
+    
+    with open(srvrname, 'wb') as srvrfile:
+        if loadtextauto:
+            filetext = fileinfo.value                     # reads text into string
+            if isinstance(filetext, str):                 # Python 3.1 hack
+                filedata = filetext.encode()
+            srvrfile.write(filedata)                      # save in server file
+        else:                                             # else read line by line
+            numlines, filetext = 0, ''                    # e.g., for huge files
+            while True:                                   # content always str here
+                line = fileinfo.file.readline()           # or for loop and iterator
+                if not line: break
+                if isinstance(line, str):                 # Python 3.1 hack
+                    line = line.encode()
+                srvrfile.write(line)
+                filetext += line.decode()                 # ditto
+                numlines += 1
+            filetext = ('[Lines=%d]\n' % numlines) + filetext
+
     os.chmod(srvrname, 0o666)   # make writable: owned by 'nobody'
     return filetext, srvrname
 
